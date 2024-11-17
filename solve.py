@@ -5,7 +5,6 @@ from collections import Counter
 
 def generate_filters(n, num_digits):
 	valid_numbers = set()
-	
 	for r in range(1, num_digits + 1):
 		for digits in itertools.product(range(n + 1), repeat=r):
 			if sum(digits) == n:
@@ -76,7 +75,7 @@ def find_combinations_generalised(sets, target_sum, t):
 			# new for loop here
 			for v in sets[i]:
 				current_combination.append(v)
-				backtrack(i, current_combination, current_sum + v)
+				backtrack(i + 1, current_combination, current_sum + v)
 				current_combination.pop()
 
 	backtrack(0, [], 0)
@@ -106,10 +105,10 @@ def solve_generalised(sets, n, k):
 	total = 0
 	counts = generate_counts(sets)
 	for target_sum in get_reachable_sums_generalised(sets, n, k):
-		# print(f"{target_sum = }")
+		print(f"{target_sum = }")
 		# continue
 		r = find_combinations_generalised(sets, target_sum, k) | find_combinations_generalised(sets, target_sum, n-k)
-		# print(r)
+		print(r)
 		# continue
 		numbers = set()
 		for tmp in r:
@@ -143,16 +142,16 @@ def get_reachable_sums(values, n, k):
 def find_combinations(values, target_sum, t):
 	result = set()
 	values = list(values)
-	def backtrack(start, current_combination, current_sum):
+	def backtrack(current_combination, current_sum):
 		if len(current_combination) == t:
 			if current_sum == target_sum:
 				result.add(tuple(current_combination))
 			return
-		for i in range(start, len(values)):
-			current_combination.append(values[i])
-			backtrack(i, current_combination, current_sum + values[i])
+		for v in values:
+			current_combination.append(v)
+			backtrack(current_combination, current_sum + v)
 			current_combination.pop()
-	backtrack(0, [], 0)
+	backtrack([], 0)
 	return result
 
 def filter_filters(filters, numbers, target_sum, n, k):
@@ -204,8 +203,8 @@ def solve_all(S, max_n):
 
 def main():
 	# solve_one(4, 2, [set(range(6)) for _ in range(4)])
-	solve_one(4, 1, [{1, 2, 3}, {4, 5, 6}, {2}, {3}])
-	# solve_all({1, 2, 3, 4, 5, 6}, 10)
+	# solve_one(4, 1, [{1, 2, 3}, {4, 5, 6}, {2}, {3}])
+	solve_all({1, 2, 3, 4, 5, 6}, 10)
 
 if __name__ == '__main__':
 	main()
