@@ -101,14 +101,15 @@ def filter_filters_generalised(filters, numbers, target_sum, n, k, counts):
 		valid_arrangements.append(f)
 	return valid_arrangements
 
-def solve_generalised(sets, n, k):
+def solve_generalised(sets, n, k, generate_solutions):
 	total = 0
+	solutions = []
 	counts = generate_counts(sets)
 	for target_sum in get_reachable_sums_generalised(sets, n, k):
-		print(f"{target_sum = }")
+		# print(f"{target_sum = }")
 		# continue
 		r = find_combinations_generalised(sets, target_sum, k) | find_combinations_generalised(sets, target_sum, n-k)
-		print(r)
+		# print(r)
 		# continue
 		numbers = set()
 		for tmp in r:
@@ -119,12 +120,16 @@ def solve_generalised(sets, n, k):
 		# continue
 		valid_filters = filter_filters_generalised(filters, numbers, target_sum, n, k, counts)
 		# print(f"{valid_filters = }")
-		# print()
 		# continue
-		cur = sum(count_permutations(n, f) for f in valid_filters)
-		# print(target_sum, cur)
-		total += cur
-	return total
+		if generate_solutions:
+			for f in valid_filters:
+				cur = count_permutations(n, f)
+				total += cur
+				solution = tuple(sorted([d for m, d in zip(f, numbers) for _ in range(int(m))]))
+				solutions.append((target_sum, solution, cur))
+		else:
+			total += sum(count_permutations(n, f) for f in valid_filters)
+	return total, solutions
 
 # all dices the same (much quicker), especially find_combinations
 
@@ -167,8 +172,9 @@ def filter_filters(filters, numbers, target_sum, n, k):
 		valid_arrangements.append(f)
 	return valid_arrangements
 
-def solve(S, n, k):
+def solve(S, n, k, generate_solutions):
 	total = 0
+	solutions = []
 	for target_sum in get_reachable_sums(S, n, k):
 		# print(f"{target_sum = }")
 		r = find_combinations(S, target_sum, k) | find_combinations(S, target_sum, n-k)
@@ -184,27 +190,39 @@ def solve(S, n, k):
 		# continue
 		valid_filters = filter_filters(filters, numbers, target_sum, n, k)
 		# print(f"{valid_filters = }")
-		# print()
 		# continue
-		cur = sum(count_permutations(n, f) for f in valid_filters)
-		# print(target_sum, cur)
-		total += cur
-	return total
+		if generate_solutions:
+			for f in valid_filters:
+				cur = count_permutations(n, f)
+				total += cur
+				solution = tuple(sorted([d for m, d in zip(f, numbers) for _ in range(int(m))]))
+				solutions.append((target_sum, solution, cur))
+		else:
+			total += sum(count_permutations(n, f) for f in valid_filters)
+	return total, solutions
 
 # main
 
-def solve_one(n, k, sets):
-	print(n, k, solve_generalised(sets, n, k))
+def report(n, k, generate_solutions, result, solutions):
+	print(f"{n = }, {k = }, number of solutions = {result}")
+	if generate_solutions:
+		if solutions:
+			print("solutions:")
+		for sol in solutions:
+			print(sol)
 
-def solve_all(S, max_n):
+def solve_one(n, k, sets, generate_solutions=False):
+	report(n, k, generate_solutions, *solve_generalised(sets, n, k, generate_solutions))
+
+def solve_all(S, max_n, generate_solutions=False):
 	for n in range(1, max_n+1):
 		for k in range(1, n//2+1):
-			print(n, k, solve(S, n, k))
+			report(n, k, generate_solutions, *solve(S, n, k, generate_solutions))
 
 def main():
 	# solve_one(4, 2, [set(range(6)) for _ in range(4)])
-	# solve_one(4, 1, [{1, 2, 3}, {4, 5, 6}, {2}, {3}])
-	solve_all({1, 2, 3, 4, 5, 6}, 10)
+	solve_one(4, 1, [{1, 2, 3}, {4, 5, 6}, {2}, {3, 8, 5}], True)
+	# solve_all({1, 2, 3, 4, 5, 6}, 10)
 
 if __name__ == '__main__':
 	main()
